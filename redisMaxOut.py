@@ -9,7 +9,6 @@ port = <port>
 password = "<password>"
 
 def connect(url, port, password):
-    # r_server = redis.Redis("localhost")
     r_server = redis.Redis(url,
         port = port,
         password = password)
@@ -25,7 +24,7 @@ def maxOut(r_server,
         m = hashlib.md5()
         myDate = datetime.datetime.today()
         m.update(str(myDate))
-        value = str(m.hexdigest()) * valueMutliplier
+        value = str(m.hexdigest()) * valueMultiplier
         r_server.set(myDate, value)
 
         if(x % printIter == 0):
