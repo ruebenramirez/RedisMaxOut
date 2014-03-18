@@ -1,37 +1,85 @@
-# maximize the key usage
+#!/bin/python
 
+from sys import argv
+import ConfigParser, os
 import redis
-import hashlib
 import datetime
+import hashlib
 
-url = "<instanceName>.redistogo.com"
-port = <port>
-password = "<password>"
+class MaxOutConfig():
+    def __init__(self):
+        self.readConfig()
+    
+    def readConfig(self): 
+        if(len(argv) > 1):
+            configFile = argv[1]
+        else:
+            configFile = 'setup.cfg'
 
-def connect(url, port, password):
-    r_server = redis.Redis(url,
-        port = port,
-        password = password)
-    return r_server
+        config = ConfigParser.ConfigParser()
+        config.readfp(open(configFile))
 
-def maxOut(r_server,
-        min = 0,
-        max = 900000,
-        valueMultiplier = 20,
-        printIter = 100):
+        # connection settings
+        self.url =  config.get('redis connection', 'url')
+        self.port = config.get('redis connection', 'port')
+        self.password = config.get('redis connection', 'password')
 
-    for x in range(min, max):
-        m = hashlib.md5()
-        myDate = datetime.datetime.today()
-        m.update(str(myDate))
-        value = str(m.hexdigest()) * valueMultiplier
-        r_server.set(myDate, value)
+        # loop handler settings
+        self.iterations = int(config.get('loop', 'iterations'))
+        self.valueMultiplier = int(config.get('loop', 'valueMultiplier'))
+        self.printIter = int(config.get('loop', 'printIter'))
 
-        if(x % printIter == 0):
-            print str(x) + ": " + str(r_server.get(x))
+class RedisMaxOut():
 
-            memoryUsed = r_server.info()['used_memory']
-            print "memory used: " + str(memoryUsed)
+    def __init__(self, config):
+        # TODO if no config, then bail
+        self.url = config.url
+        self.port = config.port
+        self.password = config.password
+        self.iterations = config.iterations
+        self.valueMultiplier = config.valueMultiplier
+        self.printIter = config.printIter
+        self.connect()
 
-r = connect(url, port, password)
-maxOut(r)
+    def connect(self):
+        self.r_server = redis.Redis(self.url,
+            port = self.port,
+            password = self.password)
+
+    def validateConfig(self):
+        # TODO check connection
+        # TODO check loop config
+
+        # FIXME stub
+        return True
+
+    def flushOld(self):
+        self.r_server.flushall()
+
+    def maxOut(self):
+        if(not self.validateConfig()):
+            print 'exiting...invalid configuration'
+            return
+
+        for x in range(0, self.iterations):
+            m = hashlib.md5()
+            myDate = datetime.datetime.today()
+            m.update(str(myDate))
+            value = str(m.hexdigest()) * self.valueMultiplier
+            self.r_server.set(myDate, value)
+
+            if(x % self.printIter == 0):
+                print str(x) + ": " + str(self.r_server.get(x))
+
+                redisMemoryUsed = self.r_server.info()['used_memory']
+                print "memory used: " + str(redisMemoryUsed)
+
+maxOutConfig = MaxOutConfig()
+redisTorture = RedisMaxOut(maxOutConfig)
+redisTorture.flushOld()
+redisTorture.maxOut()
+
+# def main():
+
+# if __name__ == "__main__:":
+    # main()
