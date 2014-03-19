@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/python
 
 from sys import argv
 import ConfigParser, os
@@ -11,9 +11,9 @@ class MaxOutConfig():
         self.readConfig()
     
     def readConfig(self): 
-        if(len(argv) > 1):
+        try:
             configFile = argv[1]
-        else:
+        except IndexError:
             configFile = 'setup.cfg'
 
         config = ConfigParser.ConfigParser()
