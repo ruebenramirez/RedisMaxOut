@@ -30,7 +30,6 @@ class MaxOutConfig():
         self.printIter = int(config.get('loop', 'printIter'))
 
 class RedisMaxOut():
-
     def __init__(self, config):
         # TODO if no config, then bail
         self.url = config.url
