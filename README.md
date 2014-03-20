@@ -14,6 +14,7 @@ max out redis memory store to test max memory key eviction policy settings
 * add more exception handling and clean up the run to make it a usable tool
 * report on redis configuraiton as an option
 * change redis configuration settings (e.g. eviction policy, eviction sample size, etc.)
-* provide metrics on the run (key eviction accuracy in max memory scenarios)
 * simulate redis usage scenarios: blowout, linear increase, exponential increase, variable pattern, high/medium/low trigger patterns, etc.)
+* provide metrics on the run (key eviction accuracy in max memory scenarios)
 * ready this tool to test cluster configurations
+* add support for expires on some/all keys
